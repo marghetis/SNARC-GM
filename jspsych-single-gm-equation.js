@@ -13,9 +13,6 @@
     var plugin = {};
 
     plugin.create = function(params) {
-
-      params = jsPsych.pluginAPI.enforceArray(params, ['equation']);
-
       var trials = new Array(1);
 
       trials[0] = {};
@@ -24,21 +21,42 @@
       return trials;
     };
 
-    plugin.trial = function(display_element, block, trial) {
+    plugin.trial = function(display_element, trial) {
 
       // if any trial variables are functions
       // this evaluates the function and replaces
       // it with the output of the function
       trial = jsPsych.pluginAPI.evaluateFunctionParameters(trial);
 
-      // set the HTML of the display target to replaced_text.
-      var equation_to_display = trial.equation;
-      display_element.load('single-gm-equation.html');
-      var trial_data = {
-			    type: trial.type,
-			    trial_index: block.trial_idx,
-			    // other values to save go here
-			};
+      var div = d3.select(display_element[0]);
+
+      display_element.append('<svg id="formula" style="overflow: visible; border:0px; width: 600px; height: 300px;"></svg>');
+      display_element.append('<p style="text-align:center">'
+  +'<button type="button" id="submit" style="display:inline-block;'
+  +'background-color:transparent; border:0px; font-size:40px;'
+  +'font-color:black; padding:  0px 0px; font:sans serif">SUBMIT</button>'
+  +'</p>');
+
+      dl = gmath.DerivationList.createFixedSingleLineDL('#formula',
+        { eq: trial.equation
+        , font_size: 75
+        , normal_font: { family: 'monospace' }
+        , italic_font: { family: 'monospace' }
+        }
+      );
+
+      logger = new gmath.DLLogger(dl);
+
+      function save_data(key, rt) {
+        // do something like jsPsych.data.write({ events: logger.data });
+
+        jsPsych.data.write({
+          "rt": rt,
+          "key_press": key
+        });
+      }
+
+
       var after_response = function(info) {
           display_element.html(''); // clear the display
           save_data(info.key, info.rt);
@@ -65,12 +83,7 @@
         });
       }
 
-      function save_data(key, rt) {
-          jsPsych.data.write({
-              "rt": rt,
-              "key_press": key
-          });
-      }
+
     };
 
     return plugin;

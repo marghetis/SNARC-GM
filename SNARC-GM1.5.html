@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<title>My experiment</title>
 
 		<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
@@ -15,6 +16,10 @@
 		<script src="jspsych-single-gm-equation.js"></script>
     <link href="jspsych-4.3/css/jspsych.css" rel="stylesheet" type="text/css"></link>
 
+<link rel="stylesheet" href="gmath/gmath.css"/>
+<script src="gmath/d3.min.js"></script>
+<script src="gmath/gmath-psych-logger.min.js"></script>
+
 		<!-- <script src="jquery.csv-0.71.min.js"></script> not using right now-->
 
 		<script src="SNARC-GM1-items.js"></script> <!-- file that loads the list of items -->
@@ -26,6 +31,8 @@
   </body>
 
   <script>
+
+gmath.preloadFonts([{family: 'monospace'}]);
 
 		/////// EXPERIMENT-LEVEL PARAMETERS ///////
 
@@ -240,7 +247,7 @@
 		/////// EXPERIMENT TIMELINE ///////
 
 		var timeline = [];
-		timeline.push(intro_chunk);
+		//timeline.push(intro_chunk);
 		timeline = timeline.concat(blocktrials1);
 		timeline= timeline.concat(rest_trial);
 		timeline = timeline.concat(blocktrials2);
