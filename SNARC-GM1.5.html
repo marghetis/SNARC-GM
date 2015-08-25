@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+	<head>
+		<title>My experiment</title>
+
+		<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script> -->
+		<script src="jquery.min.js"></script>
+
+		<script src="jspsych-4.3/jspsych.js"></script>
+    <script src="jspsych-4.3/plugins/jspsych-text.js"></script>
+		<script src="jspsych-4.3/plugins/jspsych-html.js"></script>
+		<script src="jspsych-4.3/plugins/jspsych-instructions.js"></script>
+		<script src="jspsych-4.3/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-4.3/plugins/jspsych-single-stim.js"></script>
+		<script src="jspsych-single-gm-equation.js"></script>
+    <link href="jspsych-4.3/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+
+		<!-- <script src="jquery.csv-0.71.min.js"></script> not using right now-->
+
+		<script src="SNARC-GM1-items.js"></script> <!-- file that loads the list of items -->
+
+	</head>
+
+  <body>
+		<div id='jspsych-target' style='height: 600px; width: 800px; text-align: center'></div>
+  </body>
+
+  <script>
+
+		/////// EXPERIMENT-LEVEL PARAMETERS ///////
+
+		//global experiment parameters
+		var max_response_time = 2500;
+		var trials_per_block = 2;
+		var experiment_name = "SNARC-GM1";
+
+		// jittered ITI
+		var fixation_length = function () {
+			return Math.floor( Math.random() * 500 ) + 250;
+		}
+
+		/////// INTRO ///////
+
+		// define demographic block and save experiment-level variables
+		var page_1_questions = ["Subject ID?", "Age"];
+		var demographic_trial = {
+		    type: 'survey-text',
+		    questions: [page_1_questions],
+		    rows: [10],
+		    columns: [40],
+				data: {WhichTrial: "demographic"},
+				on_finish: function(data) {
+					//extract and save experiment-level variables
+					Subject_ID = JSON.parse(data.responses).Q0;
+					var Subject_Age = JSON.parse(data.responses).Q1;
+					var time_foo = new Date(); var experiment_time = time_foo.getTime();
+					jsPsych.data.addProperties({experiment: experiment_name, ExpStartTime: experiment_time,
+						Age: Subject_Age, SubjID: Subject_ID});
+				}
+		};
+
+		// define instructions block
+		var instructions_trial = {
+			type: "instructions",
+			pages: ["Welcome to the experiment.",
+							"<p>In this experiment, you will solve simple algebraic equations.</p>" +
+							"<p>You will solve the equations by dragging the terms around the screen.</p>" +
+							"<p>Click on any symbol to drag it to a new location in the equation.</p>"],
+			allow_backward: false,
+			allow_keys: true,
+			key_forward: 13,
+			show_clickable_nav: true,
+			data: {WhichTrial: "instructions"}
+		};
+
+		var intro_chunk = {
+			chunk_type: "linear",
+			timeline: [demographic_trial, instructions_trial],
+			data: {WhichChunk: "intro"}
+		}
+
+		/////// TRIALS ///////
+
+		// fixation cross
+		var fixation_trial = {
+    	type:'html',
+    	pages: [{url: "fixation.html", cont_btn: "fixation"}],
+			timing_post_trial: 0,
+			timing_response: fixation_length,
+			data: {WhichTrial: "fixation"}
+		};
+
+		// generate randomized list of stimuli from JSON object,
+		// but first convert from csv at http://codebeautify.org/csv-to-xml-json
+		var all_items = [];
+		for(i = 0; i < experiment_items.length; i++){
+			all_items.push({
+				type: 'single-gm-equation'//replace with GM plugin
+				, equation: experiment_items[i].stim
+				, timing_response: max_response_time
+				, timing_post_trial: 0
+				, data: {itemID: experiment_items[i].itemID, operation: experiment_items[i].operation, equation_side: experiment_items[i].side,
+					num1: experiment_items[i].num1, num2: experiment_items[i].num2, correct_form: experiment_items[i].correct_form,
+					WhichTrial: "equation"}
+			});
+		}
+		// var all_items = [];
+		// for(i = 0; i < experiment_items.length; i++){
+		// 	all_items.push({
+		// 		type: 'html'//replace with GM plugin
+		// 		, pages: [{url: "single-gm-equation.html", cont_btn: "submit"}]
+		// 		//, equation: experiment_items[i].stim
+		// 		, timing_response: max_response_time
+		// 		, timing_post_trial: 0
+		// 		, data: {itemID: experiment_items[i].itemID, operation: experiment_items[i].operation, equation_side: experiment_items[i].side,
+		// 			num1: experiment_items[i].num1, num2: experiment_items[i].num2, correct_form: experiment_items[i].correct_form,
+		// 			WhichTrial: "equation"}
+		// 	});
+		// }
+
+		var all_trials = jsPsych.randomization.shuffle(all_items);
+
+		/////// REST TRIAL ///////
+		var rest_trial = {
+			type: "instructions",
+			pages: "Take a rest! Press the NEXT key when you are ready to continue",
+			allow_keys: false,
+			show_clickable_nav: true,
+			data: {WhichTrial: "rest"}
+		};
+		rest_chunk = {chunk_type: 'linear', timeline: [rest_trial]};
+
+		/////// EXPERIMENTAL BLOCKS ///////
+		// create four blocks of trials
+		var blocktrials1 = [];
+		for(i = 0; i < trials_per_block; i++){
+			blocktrials1.push({
+				chunk_type: 'linear',
+				timeline: [fixation_trial, all_trials[i]],
+				data: {TrialNum: i}
+			})
+		};
+		block1 = {
+			chunk_type: 'linear'
+			, timeline: [blocktrials1.concat(rest_chunk)]
+			, data: {ChunkNum: 1, WhichChunk: "experimental-trial"}
+		};
+
+
+		var blocktrials2 = [];
+		for(i = trials_per_block*1; i < trials_per_block*2; i++){
+			blocktrials2.push({
+				chunk_type: 'linear',
+				timeline: [fixation_trial, all_trials[i]],
+				data: {TrialNum: i, WhichChunk: "experimental-trial"}
+			})
+		};
+		block2 = {
+			chunk_type: 'linear'
+			, timeline: [blocktrials2, rest_trial]
+			, data: {ChunkNum: 2, WhichChunk: "experimental-trial"}
+		}
+
+		var blocktrials3 = [];
+		for(i = trials_per_block*2; i < trials_per_block*3; i++){
+			blocktrials3.push({
+				chunk_type: 'linear',
+				timeline: [fixation_trial, all_trials[i]],
+				data: {TrialNum: i, WhichChunk: "experimental-trial"}
+			})
+		};
+		block3 = {
+			chunk_type: 'linear'
+			, timeline: [blocktrials3, rest_trial]
+			, data: {ChunkNum: 3, WhichChunk: "experimental-trial"}
+		}
+
+		var blocktrials4 = [];
+		for(i = trials_per_block*3; i < trials_per_block*4; i++){
+			blocktrials4.push({
+				chunk_type: 'linear',
+				timeline: [fixation_trial, all_trials[i]],
+				data: {TrialNum: i, WhichChunk: "experimental-trial"}
+			})
+		};
+		block4 = {
+			chunk_type: 'linear'
+			, timeline: [blocktrials4, rest_trial]
+			, data: {ChunkNum: 4, WhichChunk: "experimental-trial"}
+		}
+
+		/////// DEBRIEF ///////
+
+		//calculate average RTs for debrief
+		function getAverageAddRT() {
+			var trials = jsPsych.data.getTrialsOfType('single-stim');
+
+			var sum_rt = 0;
+			var valid_trial_count = 0;
+			for (var i = 0; i < trials.length; i++) {
+				if (trials[i].operation == '+' && trials[i].rt > -1) {
+					sum_rt += trials[i].rt;
+					valid_trial_count++;
+				}
+			}
+			return Math.floor(sum_rt / valid_trial_count);
+		}
+
+		function getAverageSubRT() {
+			var trials = jsPsych.data.getTrialsOfType('single-stim');
+
+			var sum_rt = 0;
+			var valid_trial_count = 0;
+			for (var i = 0; i < trials.length; i++) {
+				if (trials[i].operation == '-' && trials[i].rt > -1) {
+					sum_rt += trials[i].rt;
+					valid_trial_count++;
+				}
+			}
+			return Math.floor(sum_rt / valid_trial_count);
+		}
+
+		//define debrief block
+		var debrief_trial = {
+			type: 'text',
+			text: function() {
+				return "<p>Your average RT for addition was <strong>" +
+					getAverageAddRT() + "ms</strong>. Your average RT for subtraction " +
+					"was <strong>" + getAverageSubRT() + "ms</strong>. Press any key " +
+					"to complete the experiment. Thank you!</p>";
+			},
+			data: {WhichTrial: "average-RT"}
+		}
+		var debrief_chunk = {
+			chunk_type: "linear",
+			timeline: [debrief_trial],
+			data: {WhichChunk: "debrief"}
+		}
+
+		/////// EXPERIMENT TIMELINE ///////
+
+		var timeline = [];
+		timeline.push(intro_chunk);
+		timeline = timeline.concat(blocktrials1);
+		timeline= timeline.concat(rest_trial);
+		timeline = timeline.concat(blocktrials2);
+		timeline= timeline.concat(rest_trial);
+		timeline = timeline.concat(blocktrials3);
+		timeline= timeline.concat(rest_trial);
+		timeline = timeline.concat(blocktrials4);
+		timeline = timeline.concat(debrief_chunk);
+
+		// Create function to save data at end of experiment
+		function saveData(filename, filedata){
+		   $.ajax({
+		      type:'post',
+		      cache: false,
+		      url: 'save_data.php', // this is the path to the PHP script that does the actual saving
+		      data: {filename: filename, filedata: filedata}
+		   });
+		}
+
+		jsPsych.init({
+			display_element: $('#jspsych-target'),
+			experiment_structure: timeline,
+			on_finish: function() {
+				jsPsych.data.displayData('csv'); // display data, for debugging
+				saveData(experiment_name + '_' + Subject_ID + '.csv', jsPsych.data.dataAsCSV()); // save data
+			}
+		});
+
+  </script
+</html>
