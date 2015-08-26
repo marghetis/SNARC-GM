@@ -14,6 +14,7 @@
 		<script src="jspsych-4.3/plugins/jspsych-survey-text.js"></script>
     <script src="jspsych-4.3/plugins/jspsych-single-stim.js"></script>
 		<script src="jspsych-single-gm-equation.js"></script>
+		<script src="jspsych-fixation-click.js"></script>
     <link href="jspsych-4.3/css/jspsych.css" rel="stylesheet" type="text/css"></link>
 
 <link rel="stylesheet" href="gmath/gmath.css"/>
@@ -38,7 +39,7 @@ gmath.preloadFonts([{family: 'monospace'}]);
 
 		//global experiment parameters
 		var max_response_time = 2500;
-		var trials_per_block = 2;
+		var trials_per_block = 1;
 		var experiment_name = "SNARC-GM1";
 
 		// jittered ITI
@@ -70,21 +71,32 @@ gmath.preloadFonts([{family: 'monospace'}]);
 		var instructions_trial = {
 			type: "instructions",
 			pages: ["Welcome to the experiment.",
-							"<p>In this experiment, you will solve simple algebraic equations.</p>" +
-							"<p>You will solve the equations by dragging the terms around the screen.</p>" +
-							"<p>Click on any symbol to drag it to a new location in the equation.</p>"],
-			allow_backward: false,
-			allow_keys: true,
-			key_forward: 13,
-			show_clickable_nav: true,
-			data: {WhichTrial: "instructions"}
+							"<p>In this experiment, you will solve simple mathematical equations.</p>"
+							+ "<p>Each trial will begin with the presentation of a small star (*). "
+							+ "Click on this star to display the equation. You should then try to solve "
+							+ "the equation by dragging the terms around the screen.</p>"
+							+ "<p>Click on any symbol to drag it to a new location in the equation.</p>"
+							+ "<p>When you have solved for x (e.g., x = 3), press the SUBMIT button to "
+							+ "submit your solution.</p>"
+							+ "<p> Please work as quickly and accurately as possible.</p>",
+							"We will start with some practice trials. Press NEXT to begin."
+						]
+			, allow_backward: false
+			, allow_keys: true
+			, key_forward: 13
+			, show_clickable_nav: true
+			, data: {WhichTrial: "instructions"}
 		};
 
-		var intro_chunk = {
-			chunk_type: "linear",
-			timeline: [demographic_trial, instructions_trial],
-			data: {WhichChunk: "intro"}
-		}
+		var postpractice_trial = {
+			type: "instructions",
+			pages: ["<p>Well done! You are ready to start the experiment. Press any key to begin.</p>"]
+			, allow_backward: false
+			, allow_keys: true
+			, key_forward: 13
+			, show_clickable_nav: true
+			, data: {WhichTrial: "instructions"}
+		};
 
 		/////// TRIALS ///////
 
@@ -102,7 +114,7 @@ gmath.preloadFonts([{family: 'monospace'}]);
 		var all_items = [];
 		for(i = 0; i < experiment_items.length; i++){
 			all_items.push({
-				type: 'single-gm-equation'//replace with GM plugin
+				type: 'single-gm-equation'
 				, equation: experiment_items[i].stim
 				, timing_response: max_response_time
 				, timing_post_trial: 0
@@ -126,6 +138,15 @@ gmath.preloadFonts([{family: 'monospace'}]);
 		// }
 
 		var all_trials = jsPsych.randomization.shuffle(all_items);
+		var practice_trials = jsPsych.randomization.shuffle(all_items);
+		var practicetrialblock = [];
+		for(i = 0; i < 5; i++){
+			practicetrialblock.push({
+				chunk_type: 'linear',
+				timeline: [fixation_trial, practice_trials[i]],
+				data: {TrialNum: i}
+			})
+		};
 
 		/////// REST TRIAL ///////
 		var rest_trial = {
@@ -147,11 +168,11 @@ gmath.preloadFonts([{family: 'monospace'}]);
 				data: {TrialNum: i}
 			})
 		};
-		block1 = {
-			chunk_type: 'linear'
-			, timeline: [blocktrials1.concat(rest_chunk)]
-			, data: {ChunkNum: 1, WhichChunk: "experimental-trial"}
-		};
+		// block1 = {
+		// 	chunk_type: 'linear'
+		// 	, timeline: [blocktrials1.concat(rest_chunk)]
+		// 	, data: {ChunkNum: 1, WhichChunk: "experimental-trial"}
+		// };
 
 
 		var blocktrials2 = [];
@@ -162,11 +183,11 @@ gmath.preloadFonts([{family: 'monospace'}]);
 				data: {TrialNum: i, WhichChunk: "experimental-trial"}
 			})
 		};
-		block2 = {
-			chunk_type: 'linear'
-			, timeline: [blocktrials2, rest_trial]
-			, data: {ChunkNum: 2, WhichChunk: "experimental-trial"}
-		}
+		// block2 = {
+		// 	chunk_type: 'linear'
+		// 	, timeline: [blocktrials2, rest_trial]
+		// 	, data: {ChunkNum: 2, WhichChunk: "experimental-trial"}
+		// }
 
 		var blocktrials3 = [];
 		for(i = trials_per_block*2; i < trials_per_block*3; i++){
@@ -176,11 +197,11 @@ gmath.preloadFonts([{family: 'monospace'}]);
 				data: {TrialNum: i, WhichChunk: "experimental-trial"}
 			})
 		};
-		block3 = {
-			chunk_type: 'linear'
-			, timeline: [blocktrials3, rest_trial]
-			, data: {ChunkNum: 3, WhichChunk: "experimental-trial"}
-		}
+		// block3 = {
+		// 	chunk_type: 'linear'
+		// 	, timeline: [blocktrials3, rest_trial]
+		// 	, data: {ChunkNum: 3, WhichChunk: "experimental-trial"}
+		// }
 
 		var blocktrials4 = [];
 		for(i = trials_per_block*3; i < trials_per_block*4; i++){
@@ -190,11 +211,11 @@ gmath.preloadFonts([{family: 'monospace'}]);
 				data: {TrialNum: i, WhichChunk: "experimental-trial"}
 			})
 		};
-		block4 = {
-			chunk_type: 'linear'
-			, timeline: [blocktrials4, rest_trial]
-			, data: {ChunkNum: 4, WhichChunk: "experimental-trial"}
-		}
+		// block4 = {
+		// 	chunk_type: 'linear'
+		// 	, timeline: [blocktrials4, rest_trial]
+		// 	, data: {ChunkNum: 4, WhichChunk: "experimental-trial"}
+		// }
 
 		/////// DEBRIEF ///////
 
@@ -228,15 +249,25 @@ gmath.preloadFonts([{family: 'monospace'}]);
 		}
 
 		//define debrief block
+		// var debrief_trial = {
+		// 	type: 'text',
+		// 	text: function() {
+		// 		return "<p>Your average RT for addition was <strong>" +
+		// 			getAverageAddRT() + "ms</strong>. Your average RT for subtraction " +
+		// 			"was <strong>" + getAverageSubRT() + "ms</strong>. Press any key " +
+		// 			"to complete the experiment. Thank you!</p>";
+		// 	},
+		// 	data: {WhichTrial: "average-RT"}
+		// }
+		// var debrief_chunk = {
+		// 	chunk_type: "linear",
+		// 	timeline: [debrief_trial],
+		// 	data: {WhichChunk: "debrief"}
+		// }
 		var debrief_trial = {
 			type: 'text',
-			text: function() {
-				return "<p>Your average RT for addition was <strong>" +
-					getAverageAddRT() + "ms</strong>. Your average RT for subtraction " +
-					"was <strong>" + getAverageSubRT() + "ms</strong>. Press any key " +
-					"to complete the experiment. Thank you!</p>";
-			},
-			data: {WhichTrial: "average-RT"}
+			text: {"<p>Thank you!</p>"},
+			data: {WhichTrial: "thankyou"}
 		}
 		var debrief_chunk = {
 			chunk_type: "linear",
@@ -244,17 +275,26 @@ gmath.preloadFonts([{family: 'monospace'}]);
 			data: {WhichChunk: "debrief"}
 		}
 
-		/////// EXPERIMENT TIMELINE ///////
+
+		/////// EXPERIMENT TIMELINE ////////
+
+		var intro_chunk = {
+			chunk_type: "linear",
+			timeline: [demographic_trial, instructions_trial],
+			data: {WhichChunk: "intro"}
+		}
 
 		var timeline = [];
 		//timeline.push(intro_chunk);
+		//timeline = timeline.concat(practicetrialblock);
+		//timeline = timeline.concat(postpractice_trial);
 		timeline = timeline.concat(blocktrials1);
-		timeline= timeline.concat(rest_trial);
-		timeline = timeline.concat(blocktrials2);
-		timeline= timeline.concat(rest_trial);
-		timeline = timeline.concat(blocktrials3);
-		timeline= timeline.concat(rest_trial);
-		timeline = timeline.concat(blocktrials4);
+		// timeline= timeline.concat(rest_trial);
+		// timeline = timeline.concat(blocktrials2);
+		// timeline= timeline.concat(rest_trial);
+		// timeline = timeline.concat(blocktrials3);
+		// timeline= timeline.concat(rest_trial);
+		// timeline = timeline.concat(blocktrials4);
 		timeline = timeline.concat(debrief_chunk);
 
 		// Create function to save data at end of experiment
@@ -272,6 +312,7 @@ gmath.preloadFonts([{family: 'monospace'}]);
 			experiment_structure: timeline,
 			on_finish: function() {
 				jsPsych.data.displayData('csv'); // display data, for debugging
+				if (Subject_ID === undefined) {var Subject_ID = "pilot";}
 				saveData(experiment_name + '_' + Subject_ID + '.csv', jsPsych.data.dataAsCSV()); // save data
 			}
 		});
