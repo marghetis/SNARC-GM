@@ -1,10 +1,9 @@
-/* jspsych-text.js
- * Josh de Leeuw
+/* jspsych-fixation.click.js
+ * by Tyler Marghetis, adapted from
+ * jspsych-text.js by Josh de Leeuw
  *
- * This plugin displays text (including HTML formatted strings) during the experiment.
- * Use it to show instructions, provide performance feedback, etc...
+ * This plugin displays a fixation asterisk and ends when it is clicked.
  *
- * documentation: docs.jspsych.org
  *
  *
  */
