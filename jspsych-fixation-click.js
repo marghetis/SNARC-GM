@@ -37,7 +37,8 @@
             display_element.html('<p style="text-align:center">' +
               + '<button type="button" id="fixation" style="display:inline-block;'
               + 'background-color:transparent; border:0px; font-size:40px;'
-              + 'font-color:black; padding:  0px 0px; font:monospace">*</button>'
+              + 'font-color:black; padding:  0px 0px; font:monospace;'
+              + 'line-height: 70%; vertical-align: text-bottom;">*</button>'
               + '</p>');
 
             var after_response = function(info) {

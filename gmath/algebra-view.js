@@ -96,7 +96,8 @@ AlgebraView.defaultOptions = {
 , smooshed_nodes_shrink_factor: 0.5
 , debug_lines: false
 , debug_draw: false
-, dur: 300
+, dur: 300 // animation time in ms for math transitions
+, dur_dragging: 300 // animation time in ms for animating dragged nodes following the mouse
 , easing_fn: "cubic-in-out"
 , pos: [0,0]
 , interaction_mode: 'transform'
@@ -127,6 +128,7 @@ AlgebraView.defaultOptions = {
 , shadow_node_fill: 'white'
 , enable_drag_to_join: true // allow smooshing?
 , visualize_scrubbable_nodes: false // show little triangles above and below scrubbable nodes?
+, rubber_band_selection: true // drag vertically to select parent nodes
 }
 
 AlgebraView.prototype.onChange = function(event) {
@@ -360,7 +362,7 @@ AlgebraView.prototype.updateSmooshed = function(nodes) {
 
   selection
     .transition()
-    .duration(this.options.dur)
+    .duration(this.options.dur_dragging)
     .ease("circle-out")
     .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")" });
 }
@@ -658,16 +660,16 @@ AlgebraView.prototype.getBBox = function(opts) {
 }
 
 /// For dragged nodes (different easing function).
-AlgebraView.prototype.update_positions = function() {
+AlgebraView.prototype.update_positions = function(nodes) {
   this.node_sel
+    .filter(function(node) { return nodes.indexOf(node) !== -1 })
     .transition()
-    .duration(this.options.dur)
+    .duration(this.options.dur_dragging)
     .ease("circle-out")
     .attr("transform", function(d) { return "translate("+ (d.x||0) + "," + (d.y||0) + ")"});
 }
 
 AlgebraView.prototype.update_style = function(no_anim) {
-  var self = this;
   this.node_sel.select("text")
      .transition()
      .duration(no_anim ? 0 : this.options.dur)
@@ -735,7 +737,7 @@ AlgebraView.prototype.debugDraw = function(node_els) {
     .attr({ x: function(d) { return d.sel_box.x }
           , width: function(d) { return d.sel_box.width }
           , y: function(d) { return d.size * self.options.font_descent - 0.5}
-          , height: 10})
+          , height: 1})
 
   // For debugging font metrics
   node_els.select('g.offset').append('rect')
@@ -745,7 +747,7 @@ AlgebraView.prototype.debugDraw = function(node_els) {
     .attr({ x: function(d) { return d.sel_box.x }
           , width: function(d) { return d.sel_box.width }
           , y: function(d) { return -d.size * self.options.font_ascent - 0.5}
-          , height: 10})
+          , height: 1})
 
   // For debugging font metrics
   node_els.select('g.offset').append('rect')
@@ -755,7 +757,7 @@ AlgebraView.prototype.debugDraw = function(node_els) {
     .attr({ x: function(d) { return d.sel_box.x }
           , width: function(d) { return d.sel_box.width }
           , y: function(d) { return -d.size * self.options.font_baseline_shift - 0.5}
-          , height: 10})
+          , height: 1})
 
 }
 
