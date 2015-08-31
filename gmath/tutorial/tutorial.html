@@ -1,0 +1,49 @@
+<link rel="stylesheet" href="gmath/tutorial/fonts.css"/>
+
+<script src="gmath/tutorial/data.js"></script>
+<script src="gmath/tutorial/geom.min.js"></script>
+
+<body>
+  <div id='outer'>
+  	<div id='content'>
+  	<div id='inner'></div>
+  	</div>
+  </div>
+  <p style="text-align:left">
+    <button type="button" id="finished" onclick="document.body.scrollTop = document.documentElement.scrollTop = 0;"
+    style="display:inline-block; background-color:lightgrey; border:2px solid black; font-size:30px;
+     font-color:black; font:monospace; line-height: 70%;
+     horizontal-align: center; vertical-align: text-bottom;">Finished!</button>
+  </p>
+</body>
+
+<script>
+
+  for (var i=0; i<data.tasks.length; i++) load(data.tasks[i]);
+  d3.select('h2').text(data.title);
+
+  var tp;
+
+  function load(data) {
+  	if (!data) return;
+  	if (data.canvasTutorialPair) {
+  		var tp = new TutorialPair('#inner', {
+  			event_log: data
+  		, text: data.text
+  		, correctCanvas: data.correctCanvas
+  		});
+  	} else {
+  		var tp = new gmath.GMTutorialPair('#inner', {
+  			gestureData: data
+  		, eq: data.options.eq
+  		, correctAnswers: data.correctAnswers
+  		, text: data.text
+  		, startWiggle: data.startWiggle
+  		});
+  	}
+  	tp.events.on('done', done);
+  }
+
+  function done() {
+  }
+</script>

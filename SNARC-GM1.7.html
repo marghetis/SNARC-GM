@@ -13,15 +13,18 @@
 		<script src="jspsych-4.3/plugins/jspsych-instructions.js"></script>
 		<script src="jspsych-4.3/plugins/jspsych-survey-text.js"></script>
     <script src="jspsych-4.3/plugins/jspsych-single-stim.js"></script>
+
 		<script src="jspsych-single-gm-equation.js"></script>
 		<script src="jspsych-fixation-click.js"></script>
     <link href="jspsych-4.3/css/jspsych.css" rel="stylesheet" type="text/css"></link>
 
 		<link rel="stylesheet" href="gmath/gmath.css"/>
+		<link rel="stylesheet" href="gmath/tutorial/main.css"/>
 		<script src="gmath/d3.min.js"></script>
 		<script src="gmath/gmath-psych-logger.min.js"></script>
-		<script src="gmath/algebra-view.js"></script>
+		<!-- <script src="gmath/algebra-view.js"></script> -->
 		<script src="gmath/gmath.min.js"></script>
+		<!-- <script src="gmath/gmath.js"></script> -->
 
 		<!-- <script src="jquery.csv-0.71.min.js"></script> not using right now-->
 
@@ -30,7 +33,7 @@
 	</head>
 
   <body>
-		<div id='jspsych-target' style='height: 600px; width: 800px; text-align: center'></div>
+		<div id='jspsych-target' style='height: 600px; width: 800px; text-align: left'></div>
   </body>
 
   <script>
@@ -40,7 +43,7 @@ gmath.preloadFonts([{family: 'monospace'}]);
 		/////// EXPERIMENT-LEVEL PARAMETERS ///////
 
 		//global experiment parameters
-		var max_response_time = 7500;
+		var max_response_time = 107500;
 		var trials_per_block = 1;
 		var num_practice_trials = 2;
 		var experiment_name = "SNARC-GM1";
@@ -71,16 +74,32 @@ gmath.preloadFonts([{family: 'monospace'}]);
 		};
 
 		// define instructions block
-		var instructions_trial = {
+		var initial_instructions_trial = {
 			type: "instructions",
 			pages: ["Welcome to the experiment.",
-							"<p>In this experiment, you will solve simple mathematical equations.</p>"
+							"<p>In this experiment, you will solve simple mathematical equations. "
+							+ "You will do this by clicking and dragging the parts of the equation.</p>"
+							+ "<p>Within any equation, you can drag symbols to new locations.</p>"
+							+ "<p>Click on plus (+) or minus (-) signs to display the outcome of the calculation.</p>"
+							+ "<p>When you have solved for x (e.g., x = 3), the trial will end. "
+							+ "You will have up to 10 seconds to solve each equation.</p>"
+							+ "<p> Please work as quickly and accurately as possible.</p>",
+							"We will start with some practice trials. Press NEXT to begin."
+						]
+			, allow_backward: false
+			, allow_keys: true
+			, key_forward: 13
+			, show_clickable_nav: true
+			, data: {WhichTrial: "instructions"}
+		};
+
+		var prepractice_trial = {
+			type: "instructions",
+			pages: ["<p>Excellent! We're ready to get started.</p>"
 							+ "<p>Each trial will begin with the presentation of a small star (*). "
-							+ "Click on this star to display the equation. You should then try to solve "
-							+ "the equation by dragging the terms around the screen.</p>"
-							+ "<p>Click on any symbol to drag it to a new location in the equation.</p>"
-							+ "<p>When you have solved for x (e.g., x = 3), press the SUBMIT button to "
-							+ "submit your solution.</p>"
+							+ "Click on this star to display the equation. You should then solve "
+							+ "On each trial, when you have solved for x (e.g., x = 3), the trial will end. "
+							+ "You will have up to 10 seconds to solve each equation.</p>"
 							+ "<p> Please work as quickly and accurately as possible.</p>",
 							"We will start with some practice trials. Press NEXT to begin."
 						]
@@ -93,12 +112,22 @@ gmath.preloadFonts([{family: 'monospace'}]);
 
 		var postpractice_trial = {
 			type: "instructions",
-			pages: ["<p>Well done! You are ready to start the experiment. Press any key to begin.</p>"]
+			pages: ["<p>Well done! You are ready to start the experimental trials.</p>"
+							+ "<p>You will be able to take short breaks after few minutes.</p>"
+							+ "<p>Press any key to begin.</p>"]
 			, allow_backward: false
 			, allow_keys: true
 			, key_forward: 13
 			, show_clickable_nav: true
 			, data: {WhichTrial: "instructions"}
+		};
+
+		/////// TUTORIAL //////
+		var tutorial_trial = {
+    	type:'html',
+    	pages: [{url: "gmath/tutorial/tutorial.html", cont_btn: "finished"}],
+			timing_post_trial: 0,
+			data: {WhichTrial: "tutrial"}
 		};
 
 		/////// TRIALS ///////
@@ -128,19 +157,7 @@ gmath.preloadFonts([{family: 'monospace'}]);
 					WhichTrial: "equation"}
 			});
 		}
-		// var all_items = [];
-		// for(i = 0; i < experiment_items.length; i++){
-		// 	all_items.push({
-		// 		type: 'html'//replace with GM plugin
-		// 		, pages: [{url: "single-gm-equation.html", cont_btn: "submit"}]
-		// 		//, equation: experiment_items[i].stim
-		// 		, timing_response: max_response_time
-		// 		, timing_post_trial: 0
-		// 		, data: {itemID: experiment_items[i].itemID, operation: experiment_items[i].operation, equation_side: experiment_items[i].side,
-		// 			num1: experiment_items[i].num1, num2: experiment_items[i].num2, correct_form: experiment_items[i].correct_form,
-		// 			WhichTrial: "equation"}
-		// 	});
-		// }
+
 
 		var all_trials = jsPsych.randomization.shuffle(all_items);
 		var practice_trials = jsPsych.randomization.shuffle(all_items);
@@ -289,21 +306,31 @@ gmath.preloadFonts([{family: 'monospace'}]);
 
 		var intro_chunk = {
 			chunk_type: "linear",
-			timeline: [demographic_trial, instructions_trial],
+			timeline: [demographic_trial, initial_instructions_trial, tutorial_trial, prepractice_trial, practicetrialblock, postpractice_trial],
 			data: {WhichChunk: "intro"}
 		}
 
 		var timeline = [];
 		//timeline.push(intro_chunk);
+
+		// timeline.push(demographic_trial);
+		// timeline.push(initial_instructions_trial);
+		timeline.push(tutorial_trial);
+		timeline.push(prepractice_trial);
 		timeline = timeline.concat(practicetrialblock);
 		timeline = timeline.concat(postpractice_trial);
+
 		timeline = timeline.concat(blocktrials1);
 		timeline= timeline.concat(rest_trial);
+
 		timeline = timeline.concat(blocktrials2);
 		timeline= timeline.concat(rest_trial);
+
 		timeline = timeline.concat(blocktrials3);
 		timeline= timeline.concat(rest_trial);
+
 		timeline = timeline.concat(blocktrials4);
+
 		timeline = timeline.concat(debrief_chunk);
 
 		// Create function to save data at end of experiment

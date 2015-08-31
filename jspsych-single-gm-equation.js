@@ -33,7 +33,7 @@
       display_element.append('<svg id="formula" style="overflow: visible;'
         + 'border:0px; width: 600px; height: 300px;"></svg>'
       );
-      gmath.options.actions.blacklist = ['flip equation'] //disable ability to transpose sides of equation by clicking =
+      gmath.options.actions.blacklist = ['flip equation', 'direct factor'] //disable ability to transpose sides of equation by clicking =
       dl = gmath.DerivationList.createFixedSingleLineDL('#formula',
         { eq: trial.equation
         , font_size: 75

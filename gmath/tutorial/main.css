@@ -1,0 +1,197 @@
+@import url(http://fonts.googleapis.com/css?family=Kalam:400);
+
+g.math text {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  dominant-baseline: alphabetic;
+}
+
+body {
+	margin: 0;
+}
+
+g.math {
+	pointer-events: all;
+}
+
+
+p.tutorial-instructions {
+	font-size: 19px;
+	font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+	color: #555;
+	font-weight: 300;
+	margin-top: 1em;
+}
+
+.tutorial {
+	margin-bottom: 3em;
+}
+
+.tutorial .choice {
+	margin: 10px 0;
+}
+
+#outer {
+  margin: auto;
+  margin-bottom: 40px;
+  width: 780px;
+  padding: 0 10px;
+}
+
+#content {
+	width: 550px;
+	margin: auto;
+	float: left;
+}
+
+.interactive {
+  cursor: pointer;
+}
+
+.jspsych-display-element {
+	height: 768px;
+	width: 1024px;
+}
+
+#jspsych_target {
+  text-align: center;
+  color: #444;
+}
+
+.instructions {
+	margin: auto;
+	text-align: left;
+	font-size: 18px;
+}
+
+.response .inner {
+	padding: 0 30px;
+}
+
+.response span.eqls {
+	font-family: 'Crimson Text';
+	font-size: 40px;
+	vertical-align: middle;
+}
+
+.response span.x {
+	font-family: 'Crimson Text Italics';
+	font-size: 40px;
+	vertical-align: middle;
+}
+
+.response .input-group-outer {
+	font-size: 40px;
+	font-family: 'Crimson Text';
+	width: 370px;
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.response input {
+	font-size: 30px;
+	height: 60px;
+}
+
+.response button {
+	height: 60px;
+	font-family: Lato;
+}
+
+.solution, .labeled-box {
+	width: 500px;
+	margin: auto;
+	border: 1px solid silver;
+	/*height: 90px;*/
+	height: 110px;
+	border-radius: 4px;
+	margin-top: 100px;
+	margin-bottom: 100px;
+	text-align: left;
+	position: relative;
+}
+
+div.solution {
+	float: right;
+	width: 45%;
+	margin: 20px auto;
+	margin-top: 150px;
+}
+
+.labeled-box {
+	height: 110px;
+}
+
+.labeled-box.response {
+	height: auto;
+	padding: 30px 0;
+}
+
+.solution span, .labeled-box span.mylabel {
+	font-size: 14px;
+	position: relative;
+	top: -12px;
+	color: gray;
+	background: white;
+	display: inline-block;
+	padding: 0px 12px;
+	height: 30px;
+	margin-left: 12px;
+	position: absolute;
+}
+
+div.choices {
+	width: 45%;
+	float: left;
+}
+
+.choice svg {
+	border: 1px solid silver;
+	border-radius: 4px;
+	background: #eee;
+}
+
+.animation {
+	width: 100%;
+	height: 100%;
+}
+
+.choice {
+	height: 120px;
+	width: 500px;
+	margin: 20px auto;
+	position: relative;
+}
+
+.choice2 {
+	height: 250px;
+	width: 500px;
+	margin: 20px auto;
+	position: relative;
+	border: 1px solid silver;
+}
+
+.choice span.label, .choice2 span.label {
+	left: 1px;
+	text-align: center;
+	width: 120px;
+	height: 100%;
+	background: rgba(0,0,0,0.15);
+	top: 1px;
+	position: absolute;
+	border-radius: 3px 0 0 3px;
+	font-size: 20px;
+	font-family: Lato;
+	color: black;
+	display: inline-block;
+	line-height: 120px;
+	font-style: italic;
+}
+
+.choice span.label.light, .choice2 span.label.light {
+	background: none;
+	color: #85C042;
+}
