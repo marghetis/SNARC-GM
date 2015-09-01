@@ -10,6 +10,7 @@
 		<script src="jspsych-4.3/jspsych.js"></script>
     <script src="jspsych-4.3/plugins/jspsych-text.js"></script>
 		<script src="jspsych-4.3/plugins/jspsych-html.js"></script>
+		<script src="jspsych-4.3/plugins/jspsych-call-function.js"></script>
 		<script src="jspsych-4.3/plugins/jspsych-instructions.js"></script>
 		<script src="jspsych-4.3/plugins/jspsych-survey-text.js"></script>
     <script src="jspsych-4.3/plugins/jspsych-single-stim.js"></script>
@@ -44,8 +45,8 @@ gmath.preloadFonts([{family: 'monospace'}]);
 
 		//global experiment parameters
 		var max_response_time = 10000;
-		var trials_per_block = 5;
-		var num_practice_trials = 2;
+		var trials_per_block = 1;
+		var num_practice_trials = 1;
 		var experiment_name = "SNARC-GM1";
 
 		// jittered ITI
@@ -54,25 +55,6 @@ gmath.preloadFonts([{family: 'monospace'}]);
 		}
 
 		/////// INTRO ///////
-
-		// define demographic block and save experiment-level variables
-		var page_1_questions = ["Have you taken a college calculus class? (Y/N)", "Age? (1-99)"];
-		var demographic_trial = {
-		    type: 'survey-text',
-		    questions: [page_1_questions],
-		    rows: [10],
-		    columns: [40],
-				data: {WhichTrial: "demographic"},
-				on_finish: function(data) {
-					//extract and save experiment-level variables
-					Subject_ID = JSON.parse(data.responses).Q0; if (Subject_ID === undefined) {var Subject_ID = "pilot";}
-					var Subject_Age = JSON.parse(data.responses).Q1;
-					var time_foo = new Date();
-					experiment_time = time_foo.getTime();
-					jsPsych.data.addProperties({experiment: experiment_name, ExpStartTime: experiment_time,
-						Age: Subject_Age, SubjID: Subject_ID});
-				}
-		};
 
 		// define instructions block
 		var initial_instructions_trial = {
@@ -98,8 +80,8 @@ gmath.preloadFonts([{family: 'monospace'}]);
 			type: "instructions",
 			pages: ["<p>Excellent! We're ready to get started.</p>"
 							+ "<p>Each trial will begin with the presentation of a small star (*). "
-							+ "Click on this star to display the equation. You should then solve "
-							+ "On each trial, when you have solved for x (e.g., x = 3), the trial will end. "
+							+ "Click on this star to display the equation. You should then solve this equation as quickly and accurately as possible."
+							+ " When you have solved for x (e.g., x = 3), the trial will end. "
 							+ "You will have up to 10 seconds to solve each equation.</p>"
 							+ "<p> Please work as quickly and accurately as possible.</p>",
 							"We will start with some practice trials. Press NEXT to begin."
@@ -242,59 +224,25 @@ gmath.preloadFonts([{family: 'monospace'}]);
 
 		/////// DEBRIEF ///////
 
-		//calculate average RTs for debrief
-		function getAverageAddRT() {
-			var trials = jsPsych.data.getTrialsOfType('single-stim');
-
-			var sum_rt = 0;
-			var valid_trial_count = 0;
-			for (var i = 0; i < trials.length; i++) {
-				if (trials[i].operation == '+' && trials[i].rt > -1) {
-					sum_rt += trials[i].rt;
-					valid_trial_count++;
+		// define demographic block and save experiment-level variables
+		var page_1_questions = ["Have you taken a college calculus class? (Y/N)", "Age? (1-99)"];
+		var demographic_trial = {
+		    type: 'survey-text',
+		    preamble: 'Thank you! Just a few more questions before we\'re done.'
+				questions: [page_1_questions],
+		    rows: [10],
+		    columns: [40],
+				data: {WhichTrial: "demographic"},
+				on_finish: function(data) {
+					//extract and save experiment-level variables
+					Subject_ID = JSON.parse(data.responses).Q0; if (Subject_ID === undefined) {var Subject_ID = "pilot";}
+					var Subject_Age = JSON.parse(data.responses).Q1;
+					var time_foo = new Date();
+					var experiment_time = time_foo.getTime();
+					jsPsych.data.addProperties({experiment: experiment_name, ExpStartTime: experiment_time,
+						Age: Subject_Age, SubjID: Subject_ID});
+					saveData(experiment_name + '_' + experiment_time + '.csv', jsPsych.data.dataAsCSV()); // save data
 				}
-			}
-			return Math.floor(sum_rt / valid_trial_count);
-		}
-
-		function getAverageSubRT() {
-			var trials = jsPsych.data.getTrialsOfType('single-stim');
-
-			var sum_rt = 0;
-			var valid_trial_count = 0;
-			for (var i = 0; i < trials.length; i++) {
-				if (trials[i].operation == '-' && trials[i].rt > -1) {
-					sum_rt += trials[i].rt;
-					valid_trial_count++;
-				}
-			}
-			return Math.floor(sum_rt / valid_trial_count);
-		}
-
-		//define debrief block
-		// var debrief_trial = {
-		// 	type: 'text',
-		// 	text: function() {
-		// 		return "<p>Your average RT for addition was <strong>" +
-		// 			getAverageAddRT() + "ms</strong>. Your average RT for subtraction " +
-		// 			"was <strong>" + getAverageSubRT() + "ms</strong>. Press any key " +
-		// 			"to complete the experiment. Thank you!</p>";
-		// 	},
-		// 	data: {WhichTrial: "average-RT"}
-		// }
-		// var debrief_chunk = {
-		// 	chunk_type: "linear",
-		// 	timeline: [debrief_trial],
-		// 	data: {WhichChunk: "debrief"}
-		// }
-		var debrief_trial = {
-			type: "instructions",
-			pages: ["<p>Thank you!</p>"]
-			, allow_backward: false
-			, allow_keys: true
-			, key_forward: 13
-			, show_clickable_nav: true
-			, data: {WhichTrial: "thankyou"}
 		};
 
 		var final_screen = {
@@ -306,9 +254,10 @@ gmath.preloadFonts([{family: 'monospace'}]);
 			, show_clickable_nav: false
 			, data: {WhichTrial: "theend"}
 		};
+
 		var debrief_chunk = {
 			chunk_type: "linear",
-			timeline: [debrief_trial, demographic_trial, final_screen],
+			timeline: [demographic_trial, final_screen],
 			data: {WhichChunk: "debrief"}
 		}
 
@@ -358,7 +307,6 @@ gmath.preloadFonts([{family: 'monospace'}]);
 			experiment_structure: timeline,
 			on_finish: function() {
 				//jsPsych.data.displayData('csv'); // display data, for debugging
-				saveData(experiment_name + '_' + experiment_time + '.csv', jsPsych.data.dataAsCSV()); // save data
 			}
 		});
 
